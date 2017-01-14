@@ -1,6 +1,11 @@
-I thought the Worms version was very interesting because of its appealing variety while also sticking closely to the 
-original game in simple block configuration. I also liked the idea behind Warlords in creating a version that has a 
-competitive non-score based objective. 
+I plan to create a version of Breakout that is soccer-themed. Generally speaking, the game will have two players both
+clearing the same block field while also defending their goals. There will be multiple levels each with a different
+block configuration and levels end when all blocks have been cleared or all balls scored. The game ends when all levels
+are cleared or a player loses all their lives. The general ideas on the game are listed below. 
+
+Two variations in particular inspired me to make my game as such. I thought the Worms version was very interesting 
+because of its appealing variety while also sticking closely to the original game in simple block configuration. 
+I also liked the idea behind Warlords in creating a version that has a competitive non-score based objective. 
 
 I plan to create levels with block configurations similar to the Blackberry version of this game that I played growing 
 up called Brickbreaker. Specifically, the configurations will be relatively symmetrical with simple designs that place 
@@ -9,8 +14,8 @@ alike blocks near each other. I plan to include 3 levels.
 I plan to create blocks that take 1 to 4 hits to be destroyed as well as some blocks that cannot be destroyed. Blocks 
 that take more hits will be worth more points. Additionally, all blocks will have a chance of dropping power-ups. 
 
-For the paddle, I plan to make it warp from one side of the screen to another, catch balls automatically, and release by
-pressing a key down, and send the ball faster if it is held longer.  
+For the paddle, I plan to make it warp from one side of the screen to another, catch balls automatically, release balls
+by pressing a key down, and send the ball faster if it is held longer.  
 
 For powerups, I plan to include one that makes the paddle longer, one that makes the ball destroy blocks surrounding
 the first block it hits, and one that adds another ball. 
