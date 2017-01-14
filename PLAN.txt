@@ -1,0 +1,27 @@
+I thought the Worms version was very interesting because of its appealing variety while also sticking closely to the 
+original game in simple block configuration. I also liked the idea behind Warlords in creating a version that has a 
+competitive non-score based objective. 
+
+I plan to create levels with block configurations similar to the Blackberry version of this game that I played growing 
+up called Brickbreaker. Specifically, the configurations will be relatively symmetrical with simple designs that place 
+alike blocks near each other. I plan to include 3 levels. 
+
+I plan to create blocks that take 1 to 4 hits to be destroyed as well as some blocks that cannot be destroyed. Blocks 
+that take more hits will be worth more points. Additionally, all blocks will have a chance of dropping power-ups. 
+
+For the paddle, I plan to make it warp from one side of the screen to another, catch balls automatically, and release by
+pressing a key down, and send the ball faster if it is held longer.  
+
+For powerups, I plan to include one that makes the paddle longer, one that makes the ball destroy blocks surrounding
+the first block it hits, and one that adds another ball. 
+
+For cheat keys, pressing 2 or 3 will let you go to that level. Pressing L will give additional lives to the player. 
+R will reset the ball and paddle to initial positions. C will clear all blocks but allow for continued play and G will 
+generate additional balls (to test additions below). 
+
+Additionally, I plan to include a second player/paddle at the top while the first player is at the bottom. At the 
+middle of the top and bottom there will be goals. If a ball goes into the top goal the bottom player will get points
+and vice versa. The level ends when all blocks are cleared or all balls have been scored into goals. If a player loses 
+all their lives before the 3rd level, they lose. In a sense, the game has been modified into a 2 player soccer-like 
+game with an additional objective of scoring. 
+
