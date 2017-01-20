@@ -19,6 +19,13 @@ public class Ball {
 
 
 	}
+	public void updateLastHit(Paddle paddle){
+		switch (paddle.getPlayer()){
+		case 1: this.hit1();
+		break;
+		case 2: this.hit2();
+		}
+	}
 	public void hit1(){
 		lastHit=1;
 	}

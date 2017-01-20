@@ -13,65 +13,54 @@ public class Paddle {
 		player = playerNumber;
 		switch (player){
 		case 1: Paddle_Image.setY(Height*.9);
-				break;
+		break;
 		case 2: Paddle_Image.setY(Height*.1);
 		}
 	}
-	private ImageView getPaddle(){
+	public ImageView getPaddle(){
 		return Paddle_Image;
 	}
-	private int getPlayer(){
+	public int getPlayer(){
 		return player;
 	}
-	private void checkPaddle(Ball ball){
-		boolean atRightBorder;
-		boolean atLeftBorder; 
-		boolean atBottomBorder;
-		boolean atTopBorder;
+	public void updateLastHit(Ball ball){
+		switch (this.getPlayer()){
+		case 1: ball.hit1();
+		break;
+		case 2: ball.hit2();
+		}
+	}
+	public void checkPaddle(Ball ball){
 		if (ball.getBall().getBoundsInParent().intersects(this.getPaddle().getBoundsInParent())){
-			atLeftBorder = this.getPaddle().getBoundsInLocal().getMaxX() >= (ball.getBall().getBoundsInLocal().getMinX());
-			atRightBorder = this.getPaddle().getBoundsInLocal().getMinX() <= (ball.getBall().getBoundsInLocal().getMaxX());
-			atTopBorder = this.getPaddle().getBoundsInLocal().getMaxY() <= (ball.getBall().getBoundsInLocal().getMinY());
-			atBottomBorder = this.getPaddle().getBoundsInLocal().getMinY() >= (ball.getBall().getBoundsInLocal().getMaxY());
+			boolean atLeftBorder = this.getPaddle().getBoundsInLocal().getMaxX() >= (ball.getBall().getBoundsInLocal().getMinX());
+			boolean atRightBorder = this.getPaddle().getBoundsInLocal().getMinX() <= (ball.getBall().getBoundsInLocal().getMaxX());
+			boolean atTopBorder = this.getPaddle().getBoundsInLocal().getMaxY() <= (ball.getBall().getBoundsInLocal().getMinY());
+			boolean atBottomBorder = this.getPaddle().getBoundsInLocal().getMinY() >= (ball.getBall().getBoundsInLocal().getMaxY());
 
 			if (atRightBorder && !atLeftBorder) {
 				ball.rightX();
-				switch (this.getPlayer()){
-				case 1: ball.hit1();
-						break;
-				case 2: ball.hit2();
-				}
-				
+				ball.updateLastHit(this);
+
 			}else{
 				if (!atRightBorder && atLeftBorder){
 					ball.leftX();
-					switch (this.getPlayer()){
-					case 1: ball.hit1();
-							break;
-					case 2: ball.hit2();
-					}
+					ball.updateLastHit(this);
 				} else{ 
 					if (atBottomBorder && !atTopBorder){
 						ball.downY();	
-						switch (this.getPlayer()){
-						case 1: ball.hit1();
-								break;
-						case 2: ball.hit2();
-						}
+						ball.updateLastHit(this);
 					}
 					else{
 						if (!atBottomBorder && atTopBorder) {
 							ball.upY();
-							switch (this.getPlayer()){
-							case 1: ball.hit1();
-									break;
-							case 2: ball.hit2();
-							}
+							ball.updateLastHit(this);
 						}
 					}
 				}
 			}
 		}
-	
+
+
 	}
+
 }

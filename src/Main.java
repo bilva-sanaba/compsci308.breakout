@@ -1,5 +1,3 @@
-import java.awt.Canvas;
-import java.awt.Font;
 import java.io.FileNotFoundException;
 import java.util.Random;
 
@@ -36,6 +34,7 @@ public class Main extends Application{
 	public static final int KEY_INPUT_SPEED = 10;
 	public static final double GROWTH_RATE = 1.1;
 	public static Random rand = new Random();
+	public static final int paddleCount = 2;
 	public static int Width;
 	public static int Height;
 	public static int player1Score=0;
@@ -43,13 +42,13 @@ public class Main extends Application{
 	public static int player1Lives=3;
 	public static int player2Lives=3;
 
+
 	// picks number of bouncers randomly and creates array to store them
 	public static final int BOUNCERNUMBER= rand.nextInt(9)+1;
 	// some things we need to remember during our game
+	private Paddle[] Paddles; 
 	private Scene myScene;
 	private Group root = new Group();
-	private ImageView myPaddle1;
-	private ImageView myPaddle2;
 	private Ball myBall;
 	private Brick[] myBricks;
 	private LayoutReader LevelsReader;
@@ -72,33 +71,33 @@ public class Main extends Application{
 			}
 		}
 		return count;
-		
-		
+
+
 	}
 	public void createBricks(int Level) throws FileNotFoundException{
 		read();
-		
+
 		myBricks = new Brick[countBricks(LevelsReader,Level)];
-		
+
 		for (int i=0;i<myBricks.length;i++){
 			myBricks[i] = new Brick(LevelsReader.a[Level][i*3],LevelsReader.a[Level][i*3+1],LevelsReader.a[Level][i*3+2]);
-			
+
 
 		}
-		
+
 	}
-	
+
 	@Override
 	public void start (Stage s) throws FileNotFoundException {
 		// attach scene to the stage and display it
-		createBricks(1);
-		
+		createBricks(0);
+
 		dimensions();
 		Scene scene = setupGame(Width, Height, BACKGROUND);
 		s.setScene(scene);
 		s.setTitle(TITLE);
 		s.show();
-		
+
 		// attach "game loop" to timeline to play it
 		KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY),
 				e -> step(SECOND_DELAY));
@@ -117,20 +116,14 @@ public class Main extends Application{
 		return background_disp;
 
 	}
-	private void createPaddle1(){
-		Image paddle = new Image(getClass().getClassLoader().getResourceAsStream("paddle.gif"));
-		myPaddle1 = new ImageView(paddle);
-		myPaddle1.setX(Width/2);
-		myPaddle1.setY(Height*9/10);
+	private void createPaddles(){
+		Paddles = new Paddle[2];
+		Paddles[0] = new Paddle(1, Width, Height);
+		Paddles[1] = new Paddle(2, Width, Height);
+
 
 	}
-	private void createPaddle2(){
-		Image paddle = new Image(getClass().getClassLoader().getResourceAsStream("paddle.gif"));
-		myPaddle2 = new ImageView(paddle);
-		myPaddle2.setX(Width/2);
-		myPaddle2.setY(Height/10);
 
-	}
 
 	private Scene setupGame (int width, int height, Paint background) {
 		// create one top level collection to organize the things in the scene
@@ -143,20 +136,20 @@ public class Main extends Application{
 		myBall.getBall().setX(1);
 		myBall.getBall().setY(1);
 		Text t = new Text(10, 50, "This is a test");
-		
 
-		createPaddle1();
-		createPaddle2();
+
+		createPaddles();
 		// order added to the group is the order in which they are drawn
-		
+
 		root.getChildren().add(background_disp);
 		root.getChildren().add(myBall.getBall());
-		root.getChildren().add(myPaddle1);
-		root.getChildren().add(myPaddle2);
+		for (Paddle paddle : Paddles){
+			root.getChildren().add(paddle.getPaddle());
+		}
 		root.getChildren().add(t);
 		for (Brick brick : myBricks){
 			if (brick!=null){
-			root.getChildren().add(brick.getBrick());}
+				root.getChildren().add(brick.getBrick());}
 		}
 		// respond to input
 		myScene.setOnKeyPressed(e -> handleKeyInput(e.getCode()));
@@ -171,9 +164,12 @@ public class Main extends Application{
 	private void step (double elapsedTime) {
 		// update attributes of each bouncer
 		checkWalls(myBall);
-		checkPaddles(myBall);
+		for (Paddle paddle : Paddles){
+			paddle.checkPaddle(myBall);
+		}
+
 		for (Brick brick : myBricks){
-			checkBricks(myBall,brick);}
+			brick.checkBricks(myBall,player1Score,player2Score,root);}
 		myBall.getBall().setX(myBall.getBall().getX()+myBall.getXSpeed()*elapsedTime);
 		myBall.getBall().setY(myBall.getBall().getY()+myBall.getYSpeed()*elapsedTime);
 		myBall.getBall().setRotate(myBall.getBall().getRotate() - 1);
@@ -189,139 +185,27 @@ public class Main extends Application{
 			ball.reverseY();
 		}
 	}
-	private void checkPaddles(Ball ball){
-		boolean atRightBorder;
-		boolean atLeftBorder; 
-		boolean atBottomBorder;
-		boolean atTopBorder;
-		if (ball.getBall().getBoundsInParent().intersects(myPaddle1.getBoundsInParent())){
-			atLeftBorder = myPaddle1.getBoundsInLocal().getMaxX() >= (ball.getBall().getBoundsInLocal().getMinX());
-			atRightBorder = myPaddle1.getBoundsInLocal().getMinX() <= (ball.getBall().getBoundsInLocal().getMaxX());
-			atTopBorder = myPaddle1.getBoundsInLocal().getMaxY() <= (ball.getBall().getBoundsInLocal().getMinY());
-			atBottomBorder = myPaddle1.getBoundsInLocal().getMinY() >= (ball.getBall().getBoundsInLocal().getMaxY());
-
-			if (atRightBorder && !atLeftBorder) {
-				ball.rightX();	
-				ball.hit1();
-			}else{
-				if (!atRightBorder && atLeftBorder){
-					ball.leftX();
-					ball.hit1();
-				} else{ 
-					if (atBottomBorder && !atTopBorder){
-						ball.downY();	
-						ball.hit1();
-					}
-					else{
-						if (!atBottomBorder && atTopBorder) {
-							ball.upY();
-							ball.hit1();
-						}
-					}
-				}
-			}
-		}
-		if (ball.getBall().getBoundsInParent().intersects(myPaddle2.getBoundsInParent())){
-			atLeftBorder = myPaddle2.getBoundsInLocal().getMaxX() >= (ball.getBall().getBoundsInLocal().getMinX());
-			atRightBorder = myPaddle2.getBoundsInLocal().getMinX() <= (ball.getBall().getBoundsInLocal().getMaxX());
-			atTopBorder = myPaddle2.getBoundsInLocal().getMaxY() <= (ball.getBall().getBoundsInLocal().getMinY());
-			atBottomBorder = myPaddle2.getBoundsInLocal().getMinY() >= (ball.getBall().getBoundsInLocal().getMaxY());
-
-			if (atRightBorder && !atLeftBorder) {
-				ball.rightX();	
-				ball.hit2();
-			}else{
-				if (!atRightBorder && atLeftBorder){
-					ball.leftX();
-					ball.hit2();
-				} else{ 
-					if (atBottomBorder && !atTopBorder){
-						ball.downY();	
-						ball.hit2();
-					}
-					else{
-						if (!atBottomBorder && atTopBorder) {
-							ball.upY();
-							ball.hit2();
-						}
-					}
-				}
-			}
-		}
-	}
 
 
 
-	//fix so it takes full list and stops when hit found
-	private void checkBricks(Ball ball, Brick brick){
-		if (ball.getBall().getBoundsInParent().intersects(brick.getBrick().getBoundsInParent())){
-			if (brick.getStrength()>0){
-				boolean atLeftBorder = brick.getBrick().getBoundsInLocal().getMaxX() >= (ball.getBall().getBoundsInLocal().getMinX());
-				boolean atRightBorder = brick.getBrick().getBoundsInLocal().getMinX() <= (ball.getBall().getBoundsInLocal().getMaxX());
-				boolean atTopBorder = brick.getBrick().getBoundsInLocal().getMaxY() <= (ball.getBall().getBoundsInLocal().getMinY());
-				boolean atBottomBorder = brick.getBrick().getBoundsInLocal().getMinY() >= (ball.getBall().getBoundsInLocal().getMaxY());
 
-				if (atRightBorder && !atLeftBorder) {
-					if (ball.getXSpeed()<0){
-						updateBrick(brick,ball);
-						ball.rightX();
-					}					
-				}else{
-					if (!atRightBorder && atLeftBorder){
-						if (ball.getXSpeed()>0){
-							updateBrick(brick,ball);
-							ball.leftX();	
-						}
-					} else{ 
-						if (atBottomBorder && !atTopBorder){
-							if (ball.getYSpeed()>0){
-								updateBrick(brick,ball);
-								ball.downY();
-							}
-						}
-						else{
-							if (!atBottomBorder && atTopBorder) {
-								if (ball.getYSpeed()<0){
-									updateBrick(brick,ball);
-									ball.upY();
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-		private void updateBrick(Brick brick, Ball ball){
-			if (brick.getStrength()!=4){
-				if (ball.lastHit()){
-					player1Score = player1Score+10*brick.getStrength();
-				} else{
-					player2Score = player2Score+10*brick.getStrength();
-				}
-			}
-			
-			root.getChildren().remove(brick.getBrick());
-			brick.updateBrick();
-			if (!brick.checkBrick()){
-				root.getChildren().add(brick.getBrick());}
-		}
-	
+
+
 
 
 	// What to do each time a key is pressed
 	private void handleKeyInput (KeyCode code) {
 		if (code == KeyCode.RIGHT) {
-			myPaddle1.setX(myPaddle1.getX() + KEY_INPUT_SPEED);
+			Paddles[0].getPaddle().setX(Paddles[0].getPaddle().getX() + KEY_INPUT_SPEED);
 		}
 		else if (code == KeyCode.LEFT) {
-			myPaddle1.setX(myPaddle1.getX() - KEY_INPUT_SPEED);
+			Paddles[0].getPaddle().setX(Paddles[0].getPaddle().getX() - KEY_INPUT_SPEED);
 		}
 		else if (code == KeyCode.A) {
-			myPaddle2.setX(myPaddle2.getX() - KEY_INPUT_SPEED);
+			Paddles[1].getPaddle().setX(Paddles[1].getPaddle().getX() - KEY_INPUT_SPEED);
 		}
 		else if (code == KeyCode.D) {
-			myPaddle2.setX(myPaddle2.getX() + KEY_INPUT_SPEED);
+			Paddles[1].getPaddle().setX(Paddles[1].getPaddle().getX() + KEY_INPUT_SPEED);
 		}
 	}
 
