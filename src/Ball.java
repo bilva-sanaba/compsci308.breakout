@@ -26,14 +26,25 @@ public class Ball {
 		case 2: this.hit2();
 		}
 	}
+	public void setXSpeed(int Speed){
+		XSpeed = Speed;
+	}
+	public void setYSpeed(int Speed){
+		YSpeed = Speed;
+	}
+	public void shiftBall(){
+		this.getBall().setX(this.getBall().getX()+this.getXSpeed()*Main.SECOND_DELAY);
+		this.getBall().setY(this.getBall().getY()+this.getYSpeed()*Main.SECOND_DELAY);
+		this.getBall().setRotate(this.getBall().getRotate() - 1);
+	}
 	public void hit1(){
 		lastHit=1;
 	}
 	public void hit2(){
 		lastHit=2;
 	}
-	public boolean lastHit(){
-		return lastHit==1;
+	public int getLastHit(){
+		return lastHit;
 
 	}
 	public int getXSpeed(){

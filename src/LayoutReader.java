@@ -46,8 +46,6 @@ public class LayoutReader {
 
 					String[] stringNums =substring.split(",");
 					for (String num : stringNums){
-						System.out.println(count);
-						System.out.println(numCount);
 						a[count][numCount] = Integer.parseInt(num);
 						numCount++;
 					}

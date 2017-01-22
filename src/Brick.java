@@ -57,58 +57,88 @@ public class Brick {
 		Brick_Image.setX(x);
 		Brick_Image.setY(y);
 	}
-	public void updateBrick(Ball ball, int player1Score, int player2Score, Group root){
+	public void updateBrick(Ball ball, Group root){
+		
 		if (this.getStrength()!=4){
-			if (ball.lastHit()){
-				player1Score = player1Score+10*this.getStrength();
+			
+			if (ball.getLastHit()==1){
+				
+				Main.player1Score +=this.getStrength()*10;
 			} else{
-				player2Score = player2Score+10*this.getStrength();
+				
+				Main.player2Score +=this.getStrength()*10;
 			}
 		}
-
+		
 		root.getChildren().remove(this.getBrick());
 		this.weakenBrick();
+		
 		if (!this.checkBrickStrength()){
 			root.getChildren().add(this.getBrick());}
+		else{
+			Main.breakableBricks=Main.breakableBricks-1;
+		}
 	}
-	public void checkBricks(Ball ball, int player1score, int player2score, Group root){
+
+	public void checkBricks(Ball ball, Group root){
 		if (ball.getBall().getBoundsInParent().intersects(this.getBrick().getBoundsInParent())){
+			
+			
 			if (this.getStrength()>0){
-				boolean atLeftBorder = this.getBrick().getBoundsInLocal().getMaxX() >= (ball.getBall().getBoundsInLocal().getMinX());
-				boolean atRightBorder = this.getBrick().getBoundsInLocal().getMinX() <= (ball.getBall().getBoundsInLocal().getMaxX());
+				int x = Main.rand.nextInt(4);
+				if (x==3){
+					if (Main.myPowerup==null){
+					Main.myPowerup = new ExtraPoints(ball, 30);
+					root.getChildren().add(Main.myPowerup.getImage());
+					}
+					
+				}
+				if (x==2){
+			
+				if (Main.myPowerup == null && Main.myBalls[Main.myBalls.length-1]==null) {
+					
+				
+				Main.myPowerup=new ExtraBall(ball,30);
+				
+				
+				root.getChildren().add(Main.myPowerup.getImage());
+					
+				}
+				}else {
+					if (Main.myPowerup == null){
+					Main.myPowerup=new SizePower(ball,30);
+					
+					root.getChildren().add(Main.myPowerup.getImage());}
+				}
+					
+				boolean atLeftBorder = this.getBrick().getBoundsInLocal().getMinX() >= (ball.getBall().getBoundsInLocal().getMaxX());
+				boolean atRightBorder = this.getBrick().getBoundsInLocal().getMaxX() <= (ball.getBall().getBoundsInLocal().getMinX());
 				boolean atTopBorder = this.getBrick().getBoundsInLocal().getMaxY() <= (ball.getBall().getBoundsInLocal().getMinY());
 				boolean atBottomBorder = this.getBrick().getBoundsInLocal().getMinY() >= (ball.getBall().getBoundsInLocal().getMaxY());
 
-				if (atRightBorder && !atLeftBorder) {
-					if (ball.getXSpeed()<0){
-						updateBrick(ball,player1score,player2score,root);
-						ball.rightX();
-					}					
+				if (atRightBorder && !atLeftBorder && ball.getXSpeed()<0) {
+					updateBrick(ball,root);
+					ball.rightX();
 				}else{
-					if (!atRightBorder && atLeftBorder){
-						if (ball.getXSpeed()>0){
-							updateBrick(ball,player1score,player2score,root);
-							ball.leftX();	
-						}
+					if (!atRightBorder && atLeftBorder && ball.getXSpeed()>0){
+						updateBrick(ball,root);
+						ball.leftX();	
 					} else{ 
-						if (atBottomBorder && !atTopBorder){
-							if (ball.getYSpeed()>0){
-								updateBrick(ball,player1score,player2score,root);
-								ball.downY();
-							}
-						}
-						else{
-							if (!atBottomBorder && atTopBorder) {
-								if (ball.getYSpeed()<0){
-									updateBrick(ball,player1score,player2score,root);
-									ball.upY();
-								}
+						if (atBottomBorder && !atTopBorder && ball.getYSpeed()>0){
+							updateBrick(ball,root);
+							ball.downY();
+						}else{
+							if (!atBottomBorder && atTopBorder && ball.getYSpeed()<0) {
+								updateBrick(ball,root);
+								ball.upY();
 							}
 						}
 					}
 				}
+				
 			}
 		}
+	
 	}
 }
 

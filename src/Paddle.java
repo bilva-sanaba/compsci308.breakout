@@ -1,6 +1,7 @@
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+
 public class Paddle {
 
 	private ImageView Paddle_Image;
@@ -9,12 +10,12 @@ public class Paddle {
 	public Paddle(int playerNumber, int Width, int Height){
 		Image image = new Image(getClass().getClassLoader().getResourceAsStream("paddle.gif"));
 		Paddle_Image = new ImageView(image);
-		Paddle_Image.setX(Width/2);
+		Paddle_Image.setX((Width-this.getPaddle().getImage().getWidth())/2);
 		player = playerNumber;
 		switch (player){
-		case 1: Paddle_Image.setY(Height*.9);
+		case 1: Paddle_Image.setY(Height*.1);
 		break;
-		case 2: Paddle_Image.setY(Height*.1);
+		case 2: Paddle_Image.setY(Height*.9);
 		}
 	}
 	public ImageView getPaddle(){
@@ -29,6 +30,31 @@ public class Paddle {
 		break;
 		case 2: ball.hit2();
 		}
+	}
+	public void checkLocation(int Width){
+		
+		if (this.getPaddle().getX()>Width){
+			this.getPaddle().setX(0);
+		}else {
+			if ((this.getPaddle().getX())<0){
+				this.getPaddle().setX(Width);
+			}
+		}
+		
+	}
+	public void scaledHits(Ball ball){
+		double ballLoc = ball.getBall().getX();
+		double paddleLoc= this.getPaddle().getX();	
+		double dif = ballLoc-paddleLoc;
+		double x = ball.getXSpeed();
+		
+		double y = ball.getYSpeed();
+		x = (dif-30)*2;
+		double scale = Math.sqrt((x*x+y*y)/(100*100));
+		x=x/scale;
+		y=y/scale;
+		ball.setXSpeed((int) x);
+		ball.setYSpeed((int) y);		
 	}
 	public void checkPaddle(Ball ball){
 		if (ball.getBall().getBoundsInParent().intersects(this.getPaddle().getBoundsInParent())){
@@ -47,12 +73,15 @@ public class Paddle {
 					ball.updateLastHit(this);
 				} else{ 
 					if (atBottomBorder && !atTopBorder){
+						
 						ball.downY();	
+						this.scaledHits(ball);
 						ball.updateLastHit(this);
 					}
 					else{
 						if (!atBottomBorder && atTopBorder) {
 							ball.upY();
+							this.scaledHits(ball);
 							ball.updateLastHit(this);
 						}
 					}
