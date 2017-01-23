@@ -1,22 +1,34 @@
 import java.io.*;
 import java.util.ArrayList;
+/**This class is used to read an input text and create an array of information for creating bricks
+ * Dependencies: Main
+ * 
+ *
+ */
 public class LayoutReader {
 	private BufferedReader bufferedReader;
 	private String file;
-	public int[][] a;
+	public int[][] BrickSpecifications;
 	public int numberLevels;
 	public int maxBricks;
+	/**
+	 * Reads file stored as fileName line by line
+	 * removes parantheses and commas and stores each number in a matrix
+	 * each New Level that is read leads to numbers being stored in the next row of matrix
+	 * @param fileName
+	 * @throws FileNotFoundException
+	 */
 	LayoutReader(String fileName) throws FileNotFoundException{
 		numberLevels=0;
 		FileReader fileReader = new FileReader(fileName);
 		bufferedReader = new BufferedReader(fileReader);
 		file = fileName;
 		String line;
-		ArrayList<String> apple = new ArrayList<String>();
+		ArrayList<String> lines = new ArrayList<String>();
 		try {
 			int count =0;
 			while((line = bufferedReader.readLine()) != null) {
-				apple.add(line);
+				lines.add(line);
 				count++;
 				if (line.equals("New Level")){
 					if (count>maxBricks){
@@ -29,35 +41,23 @@ public class LayoutReader {
 			if (count>maxBricks){
 				maxBricks=count;
 			}
-
 			bufferedReader.close();
-			a = new int[numberLevels][maxBricks*3];
+			BrickSpecifications = new int[numberLevels][maxBricks*3];
 			count = -1;
 			int numCount=0;
-			for (String text : apple){
-
+			for (String text : lines){
 				if (text.equals("New Level")){
 					numCount=0;
 					count ++;
 				}else{
-
-
 					String substring = text.substring(1, text.length()-1);
-
 					String[] stringNums =substring.split(",");
 					for (String num : stringNums){
-						a[count][numCount] = Integer.parseInt(num);
+						BrickSpecifications[count][numCount] = Integer.parseInt(num);
 						numCount++;
 					}
 				}
-
 			}
-
-			//			for (String triple : apple){
-			//				if triple 
-			//				for (int i=0;i<triple.length();i++){
-
-			//				}
 		}
 
 		catch(FileNotFoundException ex) {
@@ -70,7 +70,14 @@ public class LayoutReader {
 					"Error reading file '" 
 							+ file + "'"); 
 		}
+		
 	}
-
+	/**
+	 * returns a matrix containing information needed to generate brick images
+	 * @return
+	 */
+	public int[][] getBrickSpecs(){
+		return BrickSpecifications;
+	}
 
 }
