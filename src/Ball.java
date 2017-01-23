@@ -15,16 +15,9 @@ public class Ball {
 		XSpeed=x;
 		YSpeed=y;
 		lastHit=3;
-
-
-
 	}
 	public void updateLastHit(Paddle paddle){
-		switch (paddle.getPlayer()){
-		case 1: this.hit1();
-		break;
-		case 2: this.hit2();
-		}
+		this.hit(paddle.getPlayer());
 	}
 	public void setXSpeed(int Speed){
 		XSpeed = Speed;
@@ -37,11 +30,8 @@ public class Ball {
 		this.getBall().setY(this.getBall().getY()+this.getYSpeed()*Main.SECOND_DELAY);
 		this.getBall().setRotate(this.getBall().getRotate() - 1);
 	}
-	public void hit1(){
-		lastHit=1;
-	}
-	public void hit2(){
-		lastHit=2;
+	public void hit(int player){
+		lastHit=player;
 	}
 	public int getLastHit(){
 		return lastHit;
@@ -52,12 +42,6 @@ public class Ball {
 	}
 	public int getYSpeed(){
 		return YSpeed;
-	}
-	public void reverseX(){
-		XSpeed = -1*XSpeed;
-	}
-	public void reverseY(){
-		YSpeed = -1*YSpeed;
 	}
 	//changes X direction if wall is hit on x side
 	public void rightX(){

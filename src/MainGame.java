@@ -1,10 +1,8 @@
 import java.io.FileNotFoundException;
 import java.util.Random;
 
-
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -12,18 +10,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-/**
- * A basic example JavaFX program for the first lab.
- * 
- * @author Robert C. Duvall
- */
-
-public class Main extends Application{
+public class MainGame {
 	public static final String TITLE = "Breakout Soccer";
 	public static final String BALL_IMAGE = "soccerball.gif";
 	public static final int SIZE = 600;
@@ -70,7 +61,9 @@ public class Main extends Application{
 	private LayoutReader LevelsReader;
 	private Timeline animation;
 	// direction variables updated as needed
-
+	MainGame(){
+		
+	}
 	public void toggleCheatMode(){
 		cheatMode = !cheatMode;
 	}
@@ -157,54 +150,7 @@ public class Main extends Application{
 		cheatMode = false;
 
 	}
-	@Override
-	public void start (Stage stage) throws FileNotFoundException {
-		cheatModeOff();
-		// attach scene to the stage and display it
-		dimensions();
-		//		Group rootSplash = new Group();
-		//		Scene x = new Scene(rootSplash, Width, Height, BACKGROUND);
-		//		
-		//		
-		//		s.setScene(x);
-		//		s.show();
-
-
-		createBricks(Level);
-
-		this.stage =stage;
-
-		setupGame(Width, Height, BACKGROUND);
-		StartScreen start = new StartScreen(2);
-		InstructionScreen Instruct = new InstructionScreen(1);
-		setInstructions(Instruct.getScene());
-		start.getScene().setOnKeyPressed(e -> {start.changeScreen(e.getCode());	
-		});
-		start.getScene().setOnMouseClicked(e -> start.startMouseInput(e.getX(), e.getY()));
-		Instructions.setOnKeyPressed(e -> {Instruct.changeScreen(e.getCode());});
-
-		stage.setScene(start.getScene());
-		//		s.setScene(test.s);
-		stage.setTitle(TITLE);
-		stage.show();
-
-
-		// attach "game loop" to timeline to play it
-		KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY),
-				e -> {
-					try {
-						step(SECOND_DELAY);
-					} catch (FileNotFoundException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				});
-		animation = new Timeline();
-		animation.setCycleCount(Timeline.INDEFINITE);
-		animation.getKeyFrames().add(frame);
-		//		animation.play();
-
-	}
+	
 	public ImageView createBackground(){
 		Image background_image = new Image(getClass().getClassLoader().getResourceAsStream(BACKGROUND_IMAGE));
 		ImageView background_disp = new ImageView(background_image);
@@ -495,18 +441,11 @@ public class Main extends Application{
 	}
 
 
-
-	/**
-	 * Start the program.
-	 */
-	public static void main (String[] args) {
-		launch(args);
-	}
 	public static Scene getMyScene() {
 		return myScene;
 	}
 	public static void setMyScene(Scene myScene) {
-		Main.myScene = myScene;
+		MainGame.myScene = myScene;
 	}
 	public static Scene getInstructions() {
 		return Instructions;
@@ -515,6 +454,6 @@ public class Main extends Application{
 		Instructions = instructions;
 	}
 	public void SceneChange(Scene y){
-		Main.stage.setScene(y);
+		MainGame.stage.setScene(y);
 	}
 }

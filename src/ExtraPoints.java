@@ -10,6 +10,6 @@ public class ExtraPoints extends PowerupSettings implements Powerup {
 		case 1 : Main.player1Score+=100;
 		case 2 : Main.player2Score+=100;
 		}
-		Main.root.getChildren().remove(this.getImage());
+		remove();
 	}
 }

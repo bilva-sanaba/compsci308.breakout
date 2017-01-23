@@ -6,10 +6,14 @@ public class Paddle {
 
 	private ImageView Paddle_Image;
 	private int player;
+	private int size;
 
 	public Paddle(int playerNumber, int Width, int Height){
 		Image image = new Image(getClass().getClassLoader().getResourceAsStream("paddle.gif"));
 		Paddle_Image = new ImageView(image);
+		Paddle_Image.setPreserveRatio(false);
+		size = Main.PaddleSize;
+		Paddle_Image.setFitWidth(size);
 		Paddle_Image.setX((Width-this.getPaddle().getImage().getWidth())/2);
 		player = playerNumber;
 		switch (player){
@@ -17,6 +21,7 @@ public class Paddle {
 		break;
 		case 2: Paddle_Image.setY(Height*.9);
 		}
+		
 	}
 	public ImageView getPaddle(){
 		return Paddle_Image;
@@ -26,9 +31,9 @@ public class Paddle {
 	}
 	public void updateLastHit(Ball ball){
 		switch (this.getPlayer()){
-		case 1: ball.hit1();
+		case 1: ball.hit(1);
 		break;
-		case 2: ball.hit2();
+		case 2: ball.hit(2);
 		}
 	}
 	public void checkLocation(int Width){
@@ -49,8 +54,8 @@ public class Paddle {
 		double x = ball.getXSpeed();
 		
 		double y = ball.getYSpeed();
-		x = (dif-30)*2;
-		double scale = Math.sqrt((x*x+y*y)/(100*100));
+		x = (dif-(this.getPaddle().getFitWidth()/2))*2;
+		double scale = Math.sqrt((x*x+y*y)/(Main.ballSpeed*Main.ballSpeed));
 		x=x/scale;
 		y=y/scale;
 		ball.setXSpeed((int) x);

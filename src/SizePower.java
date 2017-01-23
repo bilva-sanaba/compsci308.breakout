@@ -7,10 +7,10 @@ public class SizePower extends PowerupSettings implements Powerup {
 	@Override
 	public void operate(Paddle paddle) {
 		for (Paddle pad : Main.Paddles){
-		pad.getPaddle().setPreserveRatio(true);
-		pad.getPaddle().setFitWidth(60);
+		pad.getPaddle().setPreserveRatio(false);
+		pad.getPaddle().setFitWidth(Main.PaddleSize);
 		}
-		paddle.getPaddle().setFitWidth(80);
+		paddle.getPaddle().setFitWidth(4*Main.PaddleSize/3);
 		Main.root.getChildren().remove(this.getImage());	
 	}
 }
