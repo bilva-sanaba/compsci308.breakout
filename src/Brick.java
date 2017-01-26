@@ -64,28 +64,28 @@ public class Brick {
 	private void lowerStrength(){
 		Strength = Strength -1;
 	}
-	public void updateBrick(Ball ball, Group root){
+	public void updateBrick(Ball ball, GameSettings game){
 		if (this.getStrength()!=Main.MAX_BRICK_STRENGTH){
-			updateScore(ball);
-			this.weakenBrick(root);
+			updateScore(ball, game.getScorekeeper());
+			this.weakenBrick(game.getRoot(),game.getLevelSettings());
 		}
 	}
-	private void updateScore(Ball ball){
+	private void updateScore(Ball ball, Scorekeeper score){
 		if (ball.getLastHit()==1){
-			Main.player1Score +=this.getStrength()*10;
+			score.updatePlayer1Score(this.getStrength()*10);
 		} else{
-			Main.player2Score +=this.getStrength()*10;
+			score.updatePlayer2Score(this.getStrength()*10);
 		}
 	}
-	private void weakenBrick(Group root){
+	private void weakenBrick(Group root, LevelSettings levelset){
 		if (Strength == Main.MAX_BRICK_STRENGTH ){
 			return; 
 		} else {
 			lowerStrength();
-			updateBrickImage(root);	
+			updateBrickImage(root, levelset);	
 		}
 	}
-	private void updateBrickImage(Group root){
+	private void updateBrickImage(Group root, LevelSettings levelset){
 		root.getChildren().remove(this.getBrick());
 		if (!this.checkBrickStrength()){
 			pickImage();
@@ -94,7 +94,7 @@ public class Brick {
 			root.getChildren().add(this.getBrick());
 		}
 			else{
-				Main.breakableBricks=Main.breakableBricks-1;
+				levelset.setNumberBreakable(levelset.getNumberBreakable()-1);
 		}
 	}
 	/**
@@ -104,26 +104,26 @@ public class Brick {
 	 * @param ball
 	 * @param root
 	 */
-	public void checkBricks(Ball ball, Group root){
+	public void checkBricks(Ball ball,GameSettings game){
 		if (ball.getBall().getBoundsInParent().intersects(this.getBrick().getBoundsInParent())){
 			if (this.getStrength()>0){
-				generatePowerup(ball,root);
+				generatePowerup(ball,game);
 				boolean atLeftBorder = checkLeftBorder(ball);
 				boolean atRightBorder = checkRightBorder(ball);
 				boolean atTopBorder = checkTopBorder(ball);
 				boolean atBottomBorder = checkBottomBorder(ball);
-				allPossibleUpdates(atLeftBorder, atRightBorder, atTopBorder,atBottomBorder,ball, root);
+				allPossibleUpdates(atLeftBorder, atRightBorder, atTopBorder,atBottomBorder,ball, game);
 			}
 		}
 	}
-	private void generatePowerup(Ball ball, Group root){
+	private void generatePowerup(Ball ball, GameSettings game){
 		int randomNumber = Main.rand.nextInt(100);
-		PowerupSettings.makePowerup(ball,root,randomNumber);
+		PowerupSettings.makePowerup(ball,randomNumber, game);
 	}
 	private void allPossibleUpdates(boolean atLeftBorder, boolean atRightBorder, 
-			boolean atTopBorder, boolean atBottomBorder, Ball ball, Group root){
+			boolean atTopBorder, boolean atBottomBorder, Ball ball, GameSettings game){
 		if (shouldDirectionChange(atLeftBorder, atRightBorder, atTopBorder, atBottomBorder, ball)){
-			updateBrick(ball,root);
+			updateBrick(ball, game);
 			changeDirection(atLeftBorder, atRightBorder, atTopBorder, atBottomBorder, ball);
 		}
 	}

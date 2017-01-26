@@ -15,6 +15,7 @@ public class EndScreen extends Screen {
 	public static final int ySizeResult = 400;
 	public static final int TextSize = 20;
 	private int lev;
+	private Scorekeeper scoreboard;
 
 	Rectangle Result;
 	Text results;
@@ -24,9 +25,10 @@ public class EndScreen extends Screen {
 	 * @param NumberOfButtons
 	 * @param Level
 	 */
-	EndScreen(int NumberOfButtons, int Level){
+	EndScreen(int NumberOfButtons,Scorekeeper score){
 		super(NumberOfButtons);
-		setLevel(Level);
+		scoreboard=score;
+		setLevel(score.getLevel());
 		createResults(0);
 		drawButtons();
 		setScene(new Scene(getRoot(),Main.SIZE,Main.SIZE,ButtonColor));  
@@ -39,9 +41,8 @@ public class EndScreen extends Screen {
 	}
 	private void createText(){
 		int LevelDisp = getLevel()+1;
-
-		results = new Text(xLocResult+xTextSpace, yLocResult+yTextSpace, "Top Player Score \n= " + Main.player1Score 
-				+ "\nBottom Player Score \n= " + Main.player2Score +
+		results = new Text(xLocResult+xTextSpace, yLocResult+yTextSpace, "Top Player Score \n= " + scoreboard.getPlayer1Score()
+				+ "\nBottom Player Score \n= " + scoreboard.getPlayer2Score() +
 				"\nLevel Reached = \n" + LevelDisp);
 
 		results.setFont(new Font(TextSize));

@@ -65,12 +65,12 @@ public class StartScreen extends Screen {
 	 * changes scene to either an instructions scene or the main scene when certain i or SPACE is pressed respectively
 	 * @param code
 	 */
-	public void changeScreen (KeyCode code){
+	public void changeScreen (KeyCode code,GameSettings game){
 		if (code == KeyCode.SPACE) {
-			Main.stage.setScene(Main.getMyScene());
+			game.getStage().setScene(game.getMyScene());
 		}
 		if (code == KeyCode.I){
-			Main.stage.setScene(Main.getInstructions());
+			game.getStage().setScene(game.getInstructions());
 		}
 	}
 	/**
@@ -78,9 +78,9 @@ public class StartScreen extends Screen {
 	 * @param x
 	 * @param y
 	 */
-	public void startMouseInput (double x, double y) {
+	public void startMouseInput (double x, double y,GameSettings game) {
 		if (getButton(0).contains(x, y)) {
-			Main.stage.setScene(Main.getMyScene());
+			game.getStage().setScene(game.getMyScene());
             }
 	}
 }

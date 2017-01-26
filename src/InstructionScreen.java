@@ -63,9 +63,9 @@ public class InstructionScreen extends Screen{
 	 * handles SPACE input which triggers the change of scene to main game
 	 * @param code
 	 */
-	public void changeScreen (KeyCode code){
+	public void changeScreen (KeyCode code,GameSettings game){
 		if (code == KeyCode.SPACE) {
-			Main.stage.setScene(Main.getMyScene());
+			game.getStage().setScene(game.getMyScene());
 		}		
 	}
 

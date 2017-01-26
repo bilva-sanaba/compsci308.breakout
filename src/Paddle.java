@@ -21,7 +21,7 @@ public class Paddle {
 		Image image = new Image(getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE));
 		Paddle_Image = new ImageView(image);
 		Paddle_Image.setPreserveRatio(false);
-		size = Main.PaddleSize;
+		size = Main.PADDLESIZE;
 		Paddle_Image.setFitWidth(size);
 		Paddle_Image.setX((Width-this.getPaddle().getImage().getWidth())/2);
 		player = playerNumber;
@@ -81,7 +81,7 @@ public class Paddle {
 	 * if closer to edge of paddle, x velocity is more 
 	 * @param ball
 	 */
-	public void scaledHits(Ball ball){
+	public void scaledHits(Ball ball,GameSettings game){
 		double ballLoc = ball.getBall().getX();
 		double paddleLoc= this.getPaddle().getX();	
 		double dif = ballLoc-paddleLoc;
@@ -89,7 +89,7 @@ public class Paddle {
 
 		double y = ball.getYSpeed();
 		x = (dif-(this.getPaddle().getFitWidth()/2))*2;
-		double scale = Math.sqrt((x*x+y*y)/(Main.ballSpeed*Main.ballSpeed));
+		double scale = Math.sqrt((x*x+y*y)/(Math.pow(game.getBallSpeed(),2)));
 		x=x/scale;
 		y=y/scale;
 		ball.setXSpeed((int) x);
@@ -99,16 +99,16 @@ public class Paddle {
 	 * checks if Ball intersects with paddle at some location and changes ball direction appropriately
 	 * @param ball
 	 */
-	public void checkPaddle(Ball ball){
+	public void checkPaddle(Ball ball, GameSettings game){
 		if (ball.getBall().getBoundsInParent().intersects(this.getPaddle().getBoundsInParent())){
 			boolean atLeftBorder = this.getPaddle().getBoundsInLocal().getMaxX() >= (ball.getBall().getBoundsInLocal().getMinX());
 			boolean atRightBorder = this.getPaddle().getBoundsInLocal().getMinX() <= (ball.getBall().getBoundsInLocal().getMaxX());
 			boolean atTopBorder = this.getPaddle().getBoundsInLocal().getMaxY() <= (ball.getBall().getBoundsInLocal().getMinY());
 			boolean atBottomBorder = this.getPaddle().getBoundsInLocal().getMinY() >= (ball.getBall().getBoundsInLocal().getMaxY());
-			checkBorders(atLeftBorder,atRightBorder,atTopBorder,atBottomBorder,ball);
+			checkBorders(atLeftBorder,atRightBorder,atTopBorder,atBottomBorder,ball, game);
 		}	
 	}
-	private void checkBorders(boolean atLeftBorder,boolean atRightBorder,boolean atTopBorder,boolean atBottomBorder,Ball ball){
+	private void checkBorders(boolean atLeftBorder,boolean atRightBorder,boolean atTopBorder,boolean atBottomBorder,Ball ball,GameSettings game){
 		if (atRightBorder && !atLeftBorder) {
 			ball.rightX();
 			ball.updateLastHit(this);
@@ -119,13 +119,13 @@ public class Paddle {
 			} else{ 
 				if (atBottomBorder && !atTopBorder){
 					ball.downY();	
-					this.scaledHits(ball);
+					this.scaledHits(ball,game);
 					ball.updateLastHit(this);
 				}
 				else{
 					if (!atBottomBorder && atTopBorder) {
 						ball.upY();
-						this.scaledHits(ball);
+						this.scaledHits(ball,game);
 						ball.updateLastHit(this);
 					}
 				}

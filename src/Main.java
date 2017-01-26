@@ -3,7 +3,6 @@ import java.util.Random;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -33,39 +32,18 @@ public class Main extends Application{
 	public static final double GROWTH_RATE = 1.1;
 	public static final int MAX_BALLS = 4;
 	public static final Random rand = new Random();
-	public static final int paddleCount = 2;
-	public static final int PaddleSize=60;
+	public static final int PADDLECOUNT = 2;
+	public static final int PADDLESIZE=60;
 	public static final int MAX_BRICK_STRENGTH = 4;
-	public static final int levelMultiplier = 10;
-	public static final int Width = SIZE;
-	public static final int Height = SIZE;
-	public static final int LifePoints=100;
-	public static final int LeftPost = 138;
-	public static final int RightPost = 428;
-	public static final int ballAdjustment = 12;
-	public static int player1Score=0;
-	public static int player2Score=0;
-	public static int player1Lives=10;
-	public static int player2Lives=10;
-	public static int LevelCount =0;
-	public static Powerup myPowerup;
-	public static int numberBricks;
-	public static int breakableBricks;
-	public static int ballSpeed=100;
-	
-	private boolean cheatMode=false;
-	private int MaxLevels;
+	public static final int LEVEL_MULTIPLIER = 10;
+	public static final int WIDTH = SIZE;
+	public static final int HEIGHT = SIZE;
+	public static final int POINTS_PER_LIFE=100;
+	public static final int LEFTPOST = 138;
+	public static final int RIGHTPOST= 428;
+	public static final int BALLADJUSTMENT = 12;
 	private Text[] texts = new Text[2];
-	
-	public static Scene Instructions;
-	public static Paddle[] Paddles; 
-	private static Scene myScene;
-	public static Stage stage = new Stage();
-	public static Group root = new Group();
-	public static Ball[] myBalls = new Ball[MAX_BALLS];
-	private Brick[] myBricks;
-	private LayoutReader LevelsReader;
-	private Timeline animation;
+	private boolean cheatMode=false;
 
 
 	
@@ -76,249 +54,169 @@ public class Main extends Application{
 	 */
 	@Override
 	public void start (Stage stage) throws FileNotFoundException {
-		createBricks(LevelCount);
-		Main.stage =stage;
-		setupGame(Width, Height, BACKGROUND);
-		initializeStartScreen();
-		initializeInstructionScreen();
-		createAnimation();
+		GameSettings game = new GameSettings(stage);
+		game.createBricks();
+		game.setStage(stage);
+		setupGame(WIDTH, HEIGHT, BACKGROUND,game);
+		initializeStartScreen(game);
+		initializeInstructionScreen(game);
+		createAnimation(game);
 	}
-	/** Purpose: Reads file and creates array storing brick information for given level
-	 * determines if no more levels are remaining
-	 * 
-	 * @param Level - determines which level of bricks to be read
-	 * @throws FileNotFoundException
-	 */
-	public void createBricks(int Level) throws FileNotFoundException{
-		read();
-		initializeMyBricks();
-		numberBricks=countBricks(LevelsReader,Level);
-		endGameCheck(numberBricks);
-		fillMyBricks(Level);
-		breakableCount();
-	}
-	/*Creates a LayoutReader for reading brick layouts from text file
-	 * 
-	 */
-	public void read() throws FileNotFoundException{
-		try {
-			LevelsReader = new LayoutReader("Levels");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	/* Determines number of bricks in level
-	 * 
-	 * @return int Number of Bricks in Level
-	 */
-	public int countBricks(LayoutReader LevelsReader, int Level){
-		int count =0;
-		MaxLevels=LevelsReader.getBrickSpecs().length;
-		if (MaxLevels<=Level){
-			return count;
-		}
-		for (int i = 2; i<LevelsReader.getBrickSpecs()[Level].length;i=i+3){
-			count++;
-			if (LevelsReader.getBrickSpecs()[Level][i]==0){
-				return count-1;
-			}
-		}
-		return count;
-	}	
-	
-	private void initializeMyBricks(){
-		if (myBricks==null){
-			myBricks = new Brick[LevelsReader.maxBricks];	
-		}
-	}
-	/**
-	 * counts the number of Bricks that can still be broken in level
-	 */
-	private void breakableCount(){
-		breakableBricks = 0; 
-		for (Brick brick : myBricks){
-			if (brick!=null){
-				if (brick.getStrength()!=0 && brick.getStrength()!=MAX_BRICK_STRENGTH){
-					breakableBricks++;
-				}
-			}
-		}
-	}
-	/**
-	 * checks if no breakable bricks are remaining and if there are no levels left
-	 * if none dislpays end scene
-	 * @param numberBricks
-	 */
-	private void endGameCheck(int numberBricks){
-		if (numberBricks==0){
-			animation.stop();
-			EndScreen end = new EndScreen(1,LevelCount); 
-			stage.setScene(end.getScene());;
-		}
-	}
-	/**
-	 * fills myBricks with Brick objects based on text reading
-	 * @param Level
-	 */
-	private void fillMyBricks(int Level){
-		for (int i=0;i<countBricks(LevelsReader,Level);i++){
-			myBricks[i] = new Brick(LevelsReader.getBrickSpecs()[Level][i*3],LevelsReader.getBrickSpecs()[Level][i*3+1],LevelsReader.getBrickSpecs()[Level][i*3+2]);
-		}
-	}
-	/**
-	 * creates game Scene with background, balls paddles, score diplay, and bricks, does various actions based on keycode
-	 * @param width
-	 * @param height
-	 * @param background
-	 * @return
-	 */
-	private Scene setupGame (int width, int height, Paint background) {
-		setMyScene(new Scene(root, width, height, background));
-		drawBackground();
-		initializeBalls();
-		initializePaddles();
-		initializeText();
-		addObjects();
+	private Scene setupGame (int width, int height, Paint background, GameSettings game) {
+		game.setMyScene(new Scene(game.getRoot(), width, height, background));
+		drawBackground(game);
+		initializeBalls(game);
+		initializePaddles(game);
+		initializeText(game);
+		addObjects(game);
 		
 		// respond to input
-		getMyScene().setOnKeyPressed(e -> {
+		game.getMyScene().setOnKeyPressed(e -> {
 			try {
-				handleKeyInput(e.getCode());
+				handleKeyInput(e.getCode(),game);
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
 			}
 		});
-		return getMyScene();
+		return game.getMyScene();
 	}
 	
-	private void drawBackground(){
+	private void drawBackground(GameSettings game){
 		Image background_image = new Image(getClass().getClassLoader().getResourceAsStream(BACKGROUND_IMAGE));
 		ImageView background_disp = new ImageView(background_image);
-		background_disp.setFitWidth(Width);
-		background_disp.setFitHeight(Height);
+		background_disp.setFitWidth(WIDTH);
+		background_disp.setFitHeight(HEIGHT);
 		background_disp.setX(0);
 		background_disp.setY(0);
-		root.getChildren().add(background_disp);
+		game.getRoot().getChildren().add(background_disp);
 	}
-	private void initializeBalls(){
-		myBalls[0] = new Ball(0,ballSpeed,BALL_IMAGE);
-		myBalls[0].getBall().setX(Width/2-ballAdjustment);
-		myBalls[0].getBall().setY(Height*ExtraBall.upperPosition);
-		myBalls[0].hit(1);
-		myBalls[1] = new Ball(0,-ballSpeed,BALL_IMAGE);
-		myBalls[1].getBall().setX(Width/2-ballAdjustment);
-		myBalls[1].getBall().setY(Height*ExtraBall.lowerPosition);
-		myBalls[1].hit(2);
+	private void initializeBalls(GameSettings game){
+		
+		game.setBall(0,new Ball(0,game.getBallSpeed()));
+		game.getBall(0).getBall().setX(WIDTH/2-BALLADJUSTMENT);
+		game.getBall(0).getBall().setY(HEIGHT*ExtraBall.upperPosition);
+		game.getBall(0).hit(1);
+		game.setBall(1,new Ball(0,-game.getBallSpeed()));
+		game.getBall(1).getBall().setX(WIDTH/2-BALLADJUSTMENT);
+		game.getBall(1).getBall().setY(HEIGHT*ExtraBall.lowerPosition);
+		game.getBall(1).hit(2);
+		
+	
+		
 	}
-	private void initializePaddles(){
-		if (Paddles==null){
-			Paddles = new Paddle[2];
+	private void initializePaddles(GameSettings game){
+		
+		if (game.getMyPaddles()==null){
+			game.setMyPaddles(new Paddle[2]);
 		}
-		Paddles[0] = new Paddle(1, Width, Height);
-		Paddles[1] = new Paddle(2, Width, Height);
+		game.setMyPaddle(0, new Paddle(1,WIDTH,HEIGHT));
+		game.setMyPaddle(1, new Paddle(2,WIDTH,HEIGHT));
 	}
-	private void initializeText(){
-		int LevelDisp = LevelCount+1;
+	private void initializeText(GameSettings game){
+		int LevelDisp = game.getScorekeeper().getLevel()+1;
 		texts[0] = null;
 		texts[1] = null;
-		texts[0] = new Text(20, 50, "Level: " + LevelDisp + "\nPlayer 1 Score " + player1Score + "\nLives: " + player1Lives);
-		texts[1] = new Text(490,550, "Player 2 Score " + player2Score+"\nLives: " + player2Lives);
+		texts[0] = new Text(20, 50, "Level: " + LevelDisp + "\nPlayer 1 Score " + game.getScorekeeper().getPlayer1Score() + "\nLives: " + game.getScorekeeper().getPlayer1Lives());
+		texts[1] = new Text(490,550, "Player 2 Score " +game.getScorekeeper().getPlayer2Score()+"\nLives: " + game.getScorekeeper().getPlayer2Lives());
 	}
-	private void addObjects(){
-		addPaddles();
-		addBricks();
-		addBalls();	
-		addText(); 
+	private void addObjects(GameSettings game){
+		addPaddles(game);
+		addBricks(game);
+		addBalls(game);	
+		addText(game); 
 	}
-	private void addText(){
+	private void addText(GameSettings game){
 		for (Text text: texts){
-			root.getChildren().add(text);
+			game.getRoot().getChildren().add(text);
 			}
 	}
-	private void addBricks(){
-		for (Brick brick : myBricks){
+	private void addBricks(GameSettings game){
+		for (Brick brick : game.getMyBricks()){
 			if (brick!=null){
-				root.getChildren().add(brick.getBrick());}
+				game.getRoot().getChildren().add(brick.getBrick());}
 		}
 	}
-	private void removeText(){
+	private void removeText(GameSettings game){
 		for (int i=0;i<texts.length;i++){
-			root.getChildren().remove(texts[i]);
+			game.getRoot().getChildren().remove(texts[i]);
 		}
 	}
-	private void removePaddles(){
-		for (int i=0; i<Paddles.length;i++){
-			root.getChildren().remove(Paddles[i].getPaddle());
-			Paddles[i] = null;
+	private void removePaddles(GameSettings game){
+		
+		for (int i=0; i<game.getMyPaddles().length;i++){
+			game.getRoot().getChildren().remove(game.getMyPaddles()[i].getPaddle());
+			game.setMyPaddle(i,null);
 		}
 	}
-	private void addPaddles(){
-		for (Paddle paddle: Paddles){
-			root.getChildren().add(paddle.getPaddle());	
+	private void addPaddles(GameSettings game){
+		for (Paddle paddle: game.getMyPaddles()){
+			if (paddle!=null){
+			game.getRoot().getChildren().add(paddle.getPaddle());	
+			}
 		}
 	}
-	private void addBalls(){
-		for (Ball ball : myBalls){
+	private void addBalls(GameSettings game){
+		for (Ball ball : game.getMyBalls()){
 			if (ball!=null){
-				root.getChildren().add(ball.getBall());	
+				game.getRoot().getChildren().add(ball.getBall());	
 			}
 		}
 	}
-	private void removeBalls(){
-		for (int i=0; i<myBalls.length;i++){
-			if (myBalls[i]!=null){
-				root.getChildren().remove(myBalls[i].getBall());
-				myBalls[i] = null;
+	private void removeBalls(GameSettings game){
+		for (int i=0; i<game.getMyBalls().length;i++){
+			if (game.getMyBalls()[i]!=null){
+				game.getRoot().getChildren().remove(game.getMyBalls()[i].getBall());
+				game.getMyBalls()[i] = null;
 			}
 		}
 	}
-	private void resetMovingObjects(){
-		resetPowerup();
-		resetBalls();
-		resetPaddles();
+	private void resetMovingObjects(GameSettings game){
+		resetPowerup(game);
+		resetBalls(game);
+		resetPaddles(game);
 	}
-	private void resetPowerup(){
-		if (myPowerup!=null){
-			root.getChildren().remove(myPowerup.getImage());
-			myPowerup=null;
+	private void resetPowerup(GameSettings game){
+		if (game.getPowerup()!=null){
+			game.getRoot().getChildren().remove(game.getPowerup().getImage());
+			game.setPowerup(null);
 		}
 	}
-	private void resetPaddles(){
-		removePaddles();
-		initializePaddles();
-		addPaddles();
+	private void resetPaddles(GameSettings game){
+		removePaddles(game);
+		initializePaddles(game);
+		addPaddles(game);
 	}
-	private void resetBalls(){
-		removeBalls();
-		initializeBalls();
-		addBalls();
+	private void resetBalls(GameSettings game){
+		removeBalls(game);
+		initializeBalls(game);
+		addBalls(game);
 	}
 	
-	private void initializeStartScreen(){
+	private void initializeStartScreen(GameSettings game){
 		StartScreen start = new StartScreen(2);
-		start.getScene().setOnKeyPressed(e -> {start.changeScreen(e.getCode());});
-		start.getScene().setOnMouseClicked(e -> start.startMouseInput(e.getX(), e.getY()));
-		stage.setScene(start.getScene());
-		stage.setTitle(TITLE);
-		stage.show();
+		start.getScene().setOnKeyPressed(e -> {start.changeScreen(e.getCode(),game);});
+		start.getScene().setOnMouseClicked(e -> start.startMouseInput(e.getX(), e.getY(),game));
+		game.getStage().setScene(start.getScene());
+		game.getStage().setTitle(TITLE);
+		game.getStage().show();
 	}
-	private void initializeInstructionScreen(){
+	private void initializeInstructionScreen(GameSettings game){
 		InstructionScreen Instruct = new InstructionScreen(1);
-		setInstructions(Instruct.getScene());
-		Instructions.setOnKeyPressed(e -> {Instruct.changeScreen(e.getCode());});
+		game.setInstructions(Instruct.getScene());
+		game.getInstructions().setOnKeyPressed(e -> {Instruct.changeScreen(e.getCode(),game);});
 	}
-	private void createAnimation(){
+	private void createAnimation(GameSettings game){
 		KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY),
 				e -> {
 					try {
-						step(SECOND_DELAY);
+						step(SECOND_DELAY,game);
 					} catch (FileNotFoundException e1) {
 						e1.printStackTrace();
 					}
 				});
-		animation = new Timeline();
-		animation.setCycleCount(Timeline.INDEFINITE);
-		animation.getKeyFrames().add(frame);
+		game.setAnimation(new Timeline());
+		game.getAnimation().setCycleCount(Timeline.INDEFINITE);
+		game.getAnimation().getKeyFrames().add(frame);
 	}
 	/**
 	 * each step ball position is updated, powerups are updated, bricks are updated, level is checked, score is updated
@@ -326,103 +224,107 @@ public class Main extends Application{
 	 * @param elapsedTime
 	 * @throws FileNotFoundException
 	 */
-	private void step (double elapsedTime) throws FileNotFoundException{
-		updateBallPos();
-		updatePowerup();
-		nextLevelCheck();
-		updateText();
-		checkLives();
+	public void step (double elapsedTime, GameSettings game) throws FileNotFoundException{
+		updateBallPos(game);
+		updatePowerup(game);
+		nextLevelCheck(game);
+		updateText(game);
+		checkLives(game);
 	}	
-	private void updateBallPos(){
-		for (Ball ball: myBalls){
+	private void updateBallPos(GameSettings game){
+		for (Ball ball: game.getMyBalls()){
 			if (ball!=null){
-				checkWalls(ball);
-				checkAllPaddles(ball);
-				checkAllBricks(ball,root);
+				checkWalls(ball,game);
+				checkAllPaddles(ball,game);
+				checkAllBricks(ball,game);
 				ball.shiftBall();
 			}
 		}
 	}
-	private void checkAllPaddles(Ball ball){
-		for (Paddle paddle : Paddles){	
-			paddle.checkPaddle(ball);
-			paddle.checkLocation(Width);
-		}
-	}
-	private void checkAllBricks(Ball ball, Group root){
-		for (Brick brick : myBricks){
-			if (brick != null){
-				brick.checkBricks(ball,root);
+	private void checkAllPaddles(Ball ball,GameSettings game){
+		for (Paddle paddle : game.getMyPaddles()){	
+			if (paddle!=null){
+			paddle.checkPaddle(ball,game);
+			paddle.checkLocation(WIDTH);
 			}
 		}
 	}
-	private void checkWalls(Ball ball){
-		if (ball.getBall().getX()>=Width-ball.getBall().getBoundsInLocal().getWidth()){
+	private void checkAllBricks(Ball ball,GameSettings game){
+		for (Brick brick :game.getMyBricks()){
+			if (brick != null){
+				brick.checkBricks(ball,game);
+			}
+		}
+	}
+	private void checkWalls(Ball ball, GameSettings game){
+		if (ball.getBall().getX()>=WIDTH-ball.getBall().getBoundsInLocal().getWidth()){
 			ball.leftX();
 		}
 		if (ball.getBall().getX()<=0) {
 			ball.rightX();
 		}
-		if (ball.getBall().getY()>=Height-ball.getBall().getBoundsInLocal().getHeight()){
-			checkTopGoal(ball);
+		if (ball.getBall().getY()>=HEIGHT-ball.getBall().getBoundsInLocal().getHeight()){
+			checkTopGoal(ball,game);
 			ball.downY();
 		}
 		if (ball.getBall().getY()<=0){
-			checkBottomGoal(ball);
+			checkBottomGoal(ball,game);
 			ball.upY();
 		}
 	}
-	private void checkTopGoal(Ball ball){
-		if (ball.getYSpeed()>0 && ball.getBall().getX()>LeftPost && ball.getBall().getX()<RightPost){
-			player2Lives = player2Lives-1;
-			player1Score += LifePoints;
+	private void checkTopGoal(Ball ball, GameSettings game){
+		if (ball.getYSpeed()>0 && ball.getBall().getX()>LEFTPOST && ball.getBall().getX()<RIGHTPOST){
+			game.getScorekeeper().updatePlayer1Score(POINTS_PER_LIFE);
+			game.getScorekeeper().reducePlayer2Lives();
 		}
 	}
-	private void checkBottomGoal(Ball ball){
-		if (ball.getYSpeed()<0 && ball.getBall().getX()>LeftPost && ball.getBall().getX()<RightPost){
-			player1Lives = player1Lives-1;
-			player2Score += LifePoints;
+	private void checkBottomGoal(Ball ball, GameSettings game){
+		if (ball.getYSpeed()<0 && ball.getBall().getX()>LEFTPOST && ball.getBall().getX()<RIGHTPOST){
+			game.getScorekeeper().updatePlayer2Score(POINTS_PER_LIFE);
+			game.getScorekeeper().reducePlayer1Lives();
 		}
 	}
 	
-	private void updatePowerup(){
-		if (myPowerup != null){
-			myPowerup.getImage().setY(myPowerup.getImage().getY()+myPowerup.getY()*Main.SECOND_DELAY);				
-			for (Paddle paddle : Paddles){
-				if (myPowerup.checkPaddleContact(paddle)) {
-					myPowerup.operate(paddle);
-					myPowerup=null;
+	private void updatePowerup(GameSettings game){
+		if (game.getPowerup() != null){
+			game.getPowerup().getImage().setY(game.getPowerup().getImage().getY()+game.getPowerup().getY()*Main.SECOND_DELAY);				
+			for (Paddle paddle : game.getMyPaddles()){
+				if (paddle!=null){
+				if (game.getPowerup().checkPaddleContact(paddle)) {
+					game.getPowerup().operate(paddle);
+					game.setPowerup(null);
 					break;
+				}
 				}
 			}
 		}
-			if (myPowerup != null){
-				if (myPowerup.contactsWall()){
-					Main.root.getChildren().remove(myPowerup.getImage());
-					myPowerup = null;
+			if (game.getPowerup() != null){
+				if (game.getPowerup().contactsWall()){
+					game.getRoot().getChildren().remove(game.getPowerup().getImage());
+					game.setPowerup(null);
 				}
 
 			}
 	}
-	private void nextLevelCheck() throws FileNotFoundException{
+	private void nextLevelCheck(GameSettings game) throws FileNotFoundException{
 		if (!cheatMode){
-			if (breakableBricks==0){
-				nextLevel(1);
+			if (game.getLevelSettings().getNumberBreakable()==0){
+				nextLevel(1,game);
 			}
 		}
 	}
-	public void updateText(){
+	public void updateText(GameSettings game){
 		for (Text t: texts){
-		root.getChildren().remove(t);
+		game.getRoot().getChildren().remove(t);
 		}
-		initializeText();
-		addText();
+		initializeText(game);
+		addText(game);
 	}
-	private void checkLives(){
-		if (player1Lives ==0 || player2Lives ==0){
-			EndScreen Death = new EndScreen(1,LevelCount);
-			stage.setScene(Death.getScene());
-			animation.stop();
+	private void checkLives(GameSettings game){
+		if (game.getScorekeeper().getPlayer1Lives() ==0 || game.getScorekeeper().getPlayer2Lives() ==0){
+			EndScreen Death = new EndScreen(1,game.getScorekeeper());
+			game.getStage().setScene(Death.getScene());
+			game.getAnimation().stop();
 		}
 	}
 	/**
@@ -430,26 +332,26 @@ public class Main extends Application{
 	 * @param direction
 	 * @throws FileNotFoundException
 	 */
-	private void nextLevel(int direction) throws FileNotFoundException{		
-		LevelCount = LevelCount + direction;
-		ballSpeed = ballSpeed + levelMultiplier*LevelCount;
-		resetPowerup();
-		removeBricks();
-		createBricks(LevelCount);
-		removePaddles();
-		initializePaddles();
-		removeBalls();
-		initializeBalls();
-		removeText();
-		initializeText();
-		addObjects();
+	private void nextLevel(int direction, GameSettings game) throws FileNotFoundException{		
+		game.getScorekeeper().increaseLevel(direction);
+		game.changeBallSpeed(LEVEL_MULTIPLIER*game.getScorekeeper().getLevel());
+		resetPowerup(game);
+		removeBricks(game);
+		game.createBricks();
+		removePaddles(game);
+		initializePaddles(game);
+		removeBalls(game);
+		initializeBalls(game);
+		removeText(game);
+		initializeText(game);
+		addObjects(game);
 	}
 	
-	private void removeBricks(){
-		for (int i =0; i<myBricks.length;i++){
-			if (myBricks[i]!=null){
-				root.getChildren().remove(myBricks[i].getBrick());
-				myBricks[i] = null;
+	private void removeBricks(GameSettings game){
+		for (int i =0; i<game.getMyBricks().length;i++){
+			if (game.getMyBricks()[i]!=null){
+				game.getRoot().getChildren().remove(game.getMyBricks()[i].getBrick());
+				game.getMyBricks()[i] = null;
 			}
 		}
 	}
@@ -459,87 +361,54 @@ public class Main extends Application{
 	public void toggleCheatMode(){
 		cheatMode = !cheatMode;
 	}
-	public void updateMyBalls(Ball ball, int index){
-		myBalls[index]=ball;
+	public void updateMyBalls(Ball ball, int index, GameSettings game){
+		game.getMyBalls()[index]=ball;
 	}
 	
 	// What to do each time a key is pressed
-	private void handleKeyInput (KeyCode code) throws FileNotFoundException {
+	private void handleKeyInput (KeyCode code,GameSettings game) throws FileNotFoundException {
 		if (code == KeyCode.RIGHT) {
-			Paddles[0].getPaddle().setX(Paddles[0].getPaddle().getX() + KEY_INPUT_SPEED);
+			game.getMyPaddles()[0].getPaddle().setX(game.getMyPaddles()[0].getPaddle().getX() + KEY_INPUT_SPEED);
 		}
 		else if (code == KeyCode.LEFT) {
-			Paddles[0].getPaddle().setX(Paddles[0].getPaddle().getX() - KEY_INPUT_SPEED);
+			game.getMyPaddles()[0].getPaddle().setX(game.getMyPaddles()[0].getPaddle().getX() - KEY_INPUT_SPEED);
 		}
 		else if (code == KeyCode.A) {
-			Paddles[1].getPaddle().setX(Paddles[1].getPaddle().getX() - KEY_INPUT_SPEED);
+			game.getMyPaddles()[1].getPaddle().setX(game.getMyPaddles()[1].getPaddle().getX() - KEY_INPUT_SPEED);
 		}
 		else if (code == KeyCode.D) {
-			Paddles[1].getPaddle().setX(Paddles[1].getPaddle().getX() + KEY_INPUT_SPEED);
+			game.getMyPaddles()[1].getPaddle().setX(game.getMyPaddles()[1].getPaddle().getX() + KEY_INPUT_SPEED);
 		}
 		else if (code == KeyCode.L) {
-			player1Lives++;player2Lives++;
+			game.getScorekeeper().setPlayer1Lives(game.getScorekeeper().getPlayer1Lives()+1);
+			game.getScorekeeper().setPlayer2Lives(game.getScorekeeper().getPlayer2Lives()+1);
 		}
 		else if (code == KeyCode.P){
-			animation.pause();
+			game.getAnimation().pause();
 		}
 		else if (code == KeyCode.SPACE){
-			animation.play();	
+			game.getAnimation().play();	
 		}
 		else if (code == KeyCode.N){
-			nextLevel(1);
+			nextLevel(1,game);
 		}
 		else if (code == KeyCode.R){
-			resetMovingObjects();
-			animation.stop();
+			resetMovingObjects(game);
+			game.getAnimation().stop();
 		}
 		else if (code == KeyCode.C){
 			toggleCheatMode();
 		}
 		else if (code.isDigitKey()){ 
-			animation.stop();
+			game.getAnimation().stop();
 			@SuppressWarnings("deprecation")
 			String input = code.impl_getChar();
 			int digit = Integer.parseInt(input);
-
-			nextLevel(digit-1-LevelCount);
-			LevelCount = digit-1;
+			nextLevel(digit-1-game.getScorekeeper().getLevel(),game);
+			game.getScorekeeper().setLevel(digit-1);
 		}
 	}
-	/*
-	 * returns myScene from the class Main
-	 */
-	public static Scene getMyScene() {
-		return myScene;
-	}
-	/*
-	 * sets Main.myScene to @param
-	 * @param myScene
-	 */
-	public static void setMyScene(Scene myScene) {
-		Main.myScene = myScene;
-	}
-	/**
-	 * Returns scene created from the InstructionScreen Class
-	 * @return
-	 */
-	public static Scene getInstructions() {
-		return Instructions;
-	}
-	/**
-	 * Sets Main.Instructions to @param
-	 * @param instructions
-	 */
-	public void setInstructions(Scene instructions) {
-		Instructions = instructions;
-	}
-	/**
-	 * Sets stage scene to @param
-	 * @param scene
-	 */
-	public void SceneChange(Scene scene){
-		Main.stage.setScene(scene);
-	}
+
 	/**
 	 * Start the program.
 	 */

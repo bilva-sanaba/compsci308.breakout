@@ -16,8 +16,8 @@ public class Ball {
 	 * @param y
 	 * @param BALL_IMAGE
 	 */
-	public Ball(int x, int y, String BALL_IMAGE){
-		Image image = new Image(getClass().getClassLoader().getResourceAsStream(BALL_IMAGE));
+	public Ball(int x, int y){
+		Image image = new Image(getClass().getClassLoader().getResourceAsStream(Main.BALL_IMAGE));
 		Ball_Image = new ImageView(image);
 		Ball_Image.setPreserveRatio(true);
 		Ball_Image.setFitHeight(BallSize);

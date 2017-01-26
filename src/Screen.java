@@ -11,7 +11,7 @@ import javafx.scene.text.Text;
  * 
  *
  */
-public class Screen {
+public abstract class Screen {
 	public static final int xTextSpace = 10;
 	public static final int yTextSpace = 50;
 	public static final Paint ButtonColor = Color.WHITE;
@@ -47,8 +47,8 @@ public class Screen {
 	public void createBackground(String BACKGROUND_IMAGE){
 		Image background_image = new Image(getClass().getClassLoader().getResourceAsStream(BACKGROUND_IMAGE));
 		ImageView background_disp = new ImageView(background_image);
-		background_disp.setFitWidth(Main.Width);
-		background_disp.setFitHeight(Main.Height);
+		background_disp.setFitWidth(Main.WIDTH);
+		background_disp.setFitHeight(Main.HEIGHT);
 		background_disp.setX(0);
 		background_disp.setY(0);
 		root.getChildren().add(background_disp);
