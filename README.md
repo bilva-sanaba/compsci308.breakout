@@ -1,14 +1,7 @@
-Bilva Sanaba
-
-Start: 1/16 Finish:1//23 - approximately 30 hours spent
-
-Roles: All - Bilva Sanaba
-
-Sources: Java Docs, stackoverflow.com, suggested readings
-
-Files to Start: None
-
-Files to Test: None
+This is the first project of CS308 at Duke. 
+For it I created a version of Breakout, that is soccer themed. 
+1/16-1/23/2017  
+Approximately 30 Hours
 
 Files Required: Levels
 
@@ -24,11 +17,13 @@ C to stay on a level after all blocks are cleared, 1,2,3 to go to that level.
 
 N to go to the next level. P to pause and Space to start. 
 
+
 Known Problems: Ball detection with paddle sides when paddle is moving
 
 is not fully functional. 
 
-Extra Features: 
+
+Features: 
 
 Powerups - Extra ball, extra points, larger paddle
 
@@ -36,9 +31,9 @@ Paddle- warp sides, ball changes direction differently depending on where it hit
 
 Blocks - 1,2, 3 hits, or indestructible
 
-Other Additional Features: Second player
+Two Player
 
-Impressions: This was by far my favorite assignment at Duke so far. I thoroughly enjoyed coding and seeing a product like this. Unfortunately I am only now realizing how much more I would have had to have done to create a better designed project. I feel like I did not
+Design Issues: Many more abstractions could have been used and all of the main class should have been moved elsewhere. 
 
-know how to do much design wise. By the time we discussed ideas such as avoidance of static instance variables or single function per method, I had done too much to easily change my project. Despite spending many hours refactoring, I felt as if there was nothing I could do other than start over. I hope in the future this project will have a little more guidance before being assigned so that students will not do things similar to 201 and end up with working code that they simply cannot redesign well in a small amount of time. That being said, looking back at the project, if I had spent a lot more time just thinking about design rather than coding or seeing, I probably would have ended up with something I was much more proud of.  
+
 
